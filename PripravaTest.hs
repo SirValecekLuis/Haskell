@@ -35,10 +35,11 @@ entitytest = Container [Point 2.5 1.2]
 -- 3
 
 
-
 -- 4 
-
-
+data TernaryTree a = Leaf2 a
+                    | Branch2 (TernaryTree a) (TernaryTree a) (TernaryTree a) deriving Show
+ternaryTree :: TernaryTree Integer
+ternaryTree = Branch2 (Leaf2 3) (Leaf2 4) (Branch2 (Leaf2 6) (Leaf2 7) (Leaf2 8))
 
 -- 5
 data HTML = Attribute {name1 :: String, value :: String}
@@ -66,19 +67,32 @@ root = Directory "root"
         [
         File "notes-fpr.txt" 200 TextFile,
         File "presentation.jpg" 150 Image,
-        File "first_test.hs" 20 SourceCode
+        File "first_test.hs" 20 SourceCode,
+        Directory "test" []
         ]
     ]
 
 -- 1
-countFiles File {} = 1
+
+countFiles :: Num a => Entry -> a
+countFiles (File {}) = 1
 countFiles (Directory _ entries) = sum $ map countFiles entries
 
+-- 2
+countImages (File _ _ Image) = 1
+countImages (File {}) = 0
+countImages (Directory _ entries) = sum $ map countImages entries
 
 -- 3
 
+countDirectories (File {}) = 0
+countDirectories (Directory _ entries) = sum (map countDirectories entries) + 1
+ 
 
 -- 4
+countEmptyDirectories (Directory _ []) = 1
+countEmptyDirectories (File {}) = 0
+countEmptyDirectories (Directory _ entries) = sum $ map countEmptyDirectories entries
 
 -- 5
 countSize :: Entry -> Int
@@ -86,6 +100,8 @@ countSize (File _ size _) = size
 countSize (Directory _ files) = sum (map countSize files)
 
 -- 6
+countLargerFiles x (File _ size _) = if size > x then 1 else 0
+countLargerFiles x (Directory _ entries) = sum (map (countLargerFiles x) entries)
 
 -- TEST 3
 
